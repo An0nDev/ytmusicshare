@@ -15,7 +15,6 @@ var parcelRequire;
     'use strict';
     let id = null;
     let overlay = document.createElement ("p");
-    overlay.innerText = "Click for ID";
     overlay.style.fill = "#FFFFFF";
     overlay.addEventListener ("click", () => {
         if (id != null) prompt ("here you go", id);
@@ -33,6 +32,8 @@ var parcelRequire;
 
     let peer;
     let connections = [];
+    function updateOverlay () { overlay.innerText = `Click for ID (${connections.length} listeners)`; }
+    updateOverlay ();
     peer = new Peer ();
     peer.on ("open", _id => {
         id = _id;
@@ -41,7 +42,9 @@ var parcelRequire;
             connections.push (connection);
             connection.on ("close", () => {
                 connections.splice (connections.indexOf (connection), 1);
+                updateOverlay ();
             });
+            updateOverlay ();
         });
         setInterval (intervalHandler, 1000);
     });
