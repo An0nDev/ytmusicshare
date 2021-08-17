@@ -23,6 +23,7 @@ var parcelRequire;
     overlayContainer.style.display = "flex";
     overlayContainer.style.justifyContent = "space-between";
     let overlay = document.createElement ("h1");
+    overlay.style.color = "#FFFFFF";
     overlay.addEventListener ("click", event => {
         // if (id != null) prompt ("here you go", id);
         if (id == null) {
@@ -33,6 +34,7 @@ var parcelRequire;
     });
     overlayContainer.appendChild (overlay);
     var loadPlayerButton = document.createElement ("h1");
+    loadPlayerButton.style.color = "#FFFFFF";
     loadPlayerButton.innerText = "Join a session";
     loadPlayerButton.addEventListener ("click", event => {
         fetch (CLIENT_JS_URL).then (response => response.text ()).then (text => {
