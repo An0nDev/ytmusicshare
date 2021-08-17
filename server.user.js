@@ -51,6 +51,7 @@ var parcelRequire;
             connection.send (JSON.stringify (data));
         }
     }
+    let lastID = null;
     var intervalHandler = () => {
         var infoWrapperElem = document.querySelector ("div.content-info-wrapper");
         if (infoWrapperElem != null) {
@@ -75,6 +76,13 @@ var parcelRequire;
                             var end = currentAndEnd [1];
 
                             var id = new URL (window.location.href).searchParams.get ("v");
+                            if (id == null) {
+                                if (lastID == null) return;
+                                id = lastID;
+                            } else {
+                                lastID = id;
+                            }
+
 
                             post ({
                                 status: "active",
@@ -89,7 +97,7 @@ var parcelRequire;
                                 },
                                 id: id
                             });
-                            console.log (`${title} by ${artists.join (', ')} off ${album} from ${year} (ID ${id}), paused: ${paused}, time: ${current}/${end}`);
+                            console.log (`SHARED: ${title} by ${artists.join (', ')} off ${album} from ${year} (ID ${id}), paused: ${paused}, time: ${current}/${end}`);
                             return;
                         }
                     }
