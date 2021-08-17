@@ -24,7 +24,12 @@ var parcelRequire;
     overlayContainer.style.justifyContent = "space-between";
     let overlay = document.createElement ("h1");
     overlay.addEventListener ("click", event => {
-        if (id != null) prompt ("here you go", id);
+        // if (id != null) prompt ("here you go", id);
+        if (id == null) {
+            alert ("not connected yet");
+            return
+        }
+        navigator.clipboard.writeText (id);
     });
     overlayContainer.appendChild (overlay);
     var loadPlayerButton = document.createElement ("h1");
@@ -61,7 +66,7 @@ var parcelRequire;
 
     let peer;
     let connections = [];
-    function updateOverlay () { overlay.innerText = `Click for ID (${connections.length} listeners)`; }
+    function updateOverlay () { overlay.innerText = `Copy session ID (${connections.length} listeners)`; }
     updateOverlay ();
     peer = new Peer ();
     peer.on ("open", _id => {
