@@ -10,19 +10,37 @@
 // @run-at       document-start
 // ==/UserScript==
 
+const CLIENT_JS_URL = "https://raw.githubusercontent.com/an0ndev/ytmusicshare/master/client.js";
+
 var parcelRequire;
 (function() {
     'use strict';
     let id = null;
-    let overlay = document.createElement ("p");
-    overlay.style.fill = "#FFFFFF";
-    overlay.addEventListener ("click", () => {
+    var overlayContainer = document.createElement ("div");
+    overlayContainer.style.display = "flex";
+    overlayContainer.style.justifyContent = "space-between";
+    let overlay = document.createElement ("h1");
+    overlay.addEventListener ("click", event => {
         if (id != null) prompt ("here you go", id);
     });
+    overlayContainer.appendChild (overlay);
+    var loadPlayerButton = document.createElement ("h1");
+    loadPlayerButton.innerText = "Join a session";
+    loadPlayerButton.addEventListener ("click", event => {
+        fetch (CLIENT_JS_URL).then (response => response.text ()).then (text => {
+            var newScriptTag = document.createElement ("script");
+            newScriptTag.innerHTML = text;
+            document.head.appendChild (newScriptTag);
+        });
+    });
+    overlayContainer.appendChild (loadPlayerButton);
     var overlayAddId;
     overlayAddId = setInterval (() => {
         try {
-            document.querySelector ("ytmusic-player-bar").appendChild (overlay);
+            var playerPage = document.querySelector ("ytmusic-player-page");
+            playerPage.style.display = "flex";
+            playerPage.style.flexDirection = "column";
+            playerPage.appendChild (overlayContainer);
             console.log ("success");
             clearInterval (overlayAddId)
         } catch (e) {

@@ -6,12 +6,16 @@ var connection;
 
 var targetRoot;
 
+function clearElement (element) {
+    for (var child of Array.from (element.children)) {
+        element.removeChild (child);
+    }
+}
+
 function onPageReady () {
     targetRoot = document.body;
 
-    for (var origElement of Array.from (targetRoot.children)) {
-        targetRoot.removeChild (origElement);
-    }
+    clearElement (targetRoot);
 
     var tag = document.createElement ('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -26,13 +30,17 @@ if (document.readyState !== "complete") {
     onPageReady ();
 }
 
+var serverSelectContainer;
+var serverSelectInput;
+var playingViewContainer;
+var playerContainer;
 function onYouTubeIframeAPIReady () {
     console.log ("yt iframe ready");
     import ("https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js").then (_ => {
         peer = new Peer ();
-        var serverSelectContainer = document.createElement ("span");
+        serverSelectContainer = document.createElement ("span");
 
-        var serverSelectInput = document.createElement ("input");
+        serverSelectInput = document.createElement ("input");
         serverSelectInput.type = "text";
         var serverSelectButton = document.createElement ("button");
         serverSelectButton.innerText = "Connect";
@@ -53,18 +61,36 @@ function onYouTubeIframeAPIReady () {
         })
         serverSelectContainer.appendChild (serverSelectInput);
         serverSelectContainer.appendChild (serverSelectButton);
+
+        var backButton = document.createElement ("button");
+        backButton.innerText = "Back";
+        backButton.addEventListener ("click", event => { window.location.reload (); });
+        serverSelectContainer.appendChild (backButton);
+
         targetRoot.appendChild (serverSelectContainer);
 
-        var playerContainer = document.createElement ("span");
+        playingViewContainer = document.createElement ("span");
+        playingViewContainer.style.display = "none";
+        playerContainer = document.createElement ("span");
+
         playerContainer.id = "ytplayer";
-        playerContainer.style.display = "none";
-        targetRoot.appendChild (playerContainer);
+        playingViewContainer.appendChild (playerContainer);
+        playingViewContainer.appendChild (document.createElement ("br"));
+        var disconnectButton = document.createElement ("button");
+
+        disconnectButton.addEventListener ("click", event => {
+            if (connection.open) connection.close ();
+        });
+        disconnectButton.innerText = "Disconnect";
+        playingViewContainer.appendChild (disconnectButton);
+
+        targetRoot.appendChild (playingViewContainer);
     });
 }
 
 
 var first = true;
-var player;
+var player = null;
 
 function parseTime (time) {
     var split = time.split (":");
@@ -75,8 +101,9 @@ var currentID;
 var paused = false;
 
 function openHandler () {
-    targetRoot.children [0].style.display = "none";
-    targetRoot.children [1].style.display = "initial";
+    serverSelectContainer.style.display = "none";
+    playingViewContainer.style.display = "initial";
+    serverSelectInput.value = "";
 }
 
 function dataHandler (data) {
@@ -85,9 +112,14 @@ function dataHandler (data) {
     if (first) {
         if (data ["status"] == "inactive") return;
         first = false;
-        player = new YT.Player ("ytplayer", {
-            videoId: data ["id"]
-        });
+        if (player == null) {
+            player = new YT.Player ("ytplayer", {
+                videoId: data ["id"]
+            });
+        } else {
+            player.loadVideoById (data ["id"])
+        }
+        if (data ["paused"]) player.pauseVideo ();
         currentID = data ["id"];
         return;
     }
@@ -121,5 +153,11 @@ function dataHandler (data) {
 }
 
 function closeHandler () {
-    window.location.reload ();
+    if (player != null) {
+        player.stopVideo ();
+    }
+    first = true;
+    paused = false;
+    serverSelectContainer.style.display = "initial";
+    playingViewContainer.style.display = "none";
 }
