@@ -17,6 +17,9 @@ var parcelRequire;
     'use strict';
     let id = null;
     var overlayContainer = document.createElement ("div");
+    overlayContainer.style.position = "absolute";
+    overlayContainer.style.zIndex = "9999";
+    overlayContainer.style.width = "100%";
     overlayContainer.style.display = "flex";
     overlayContainer.style.justifyContent = "space-between";
     let overlay = document.createElement ("h1");
@@ -34,6 +37,7 @@ var parcelRequire;
         });
     });
     overlayContainer.appendChild (loadPlayerButton);
+    /*
     var overlayAddId;
     overlayAddId = setInterval (() => {
         try {
@@ -47,6 +51,13 @@ var parcelRequire;
             console.log (e);
         }
     }, 1000);
+
+     */
+    window.addEventListener ("load", event => {
+        if (document.body.children.length > 0) {
+            document.body.insertBefore (overlayContainer, document.body.firstChild);
+        } else document.body.appendChild (overlayContainer);
+    });
 
     let peer;
     let connections = [];
